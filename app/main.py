@@ -1,17 +1,41 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.database import user_collection
 from bson import ObjectId
+from google import genai
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+
+# Create FastAPI app ONLY ONCE
 app = FastAPI()
 
+# Gemini Client
+client = genai.Client(
+    api_key=os.getenv("GOOGLE_API_KEY")
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Home Route
 @app.get("/")
 def home():
     return {"message": "Hello World"}
 
+# Health Route
 @app.get("/health")
 def health():
     return {"status": "healthy"}
 
+# Create User
 @app.post("/users")
 def create_user(user: dict):
 
@@ -22,6 +46,7 @@ def create_user(user: dict):
         "message": "User created"
     }
 
+# Get All Users
 @app.get("/users")
 def get_users():
 
@@ -35,6 +60,7 @@ def get_users():
 
     return users
 
+# Get Single User
 @app.get("/users/{user_id}")
 def get_user(user_id: str):
 
@@ -42,10 +68,14 @@ def get_user(user_id: str):
         {"_id": ObjectId(user_id)}
     )
 
+    if user is None:
+        return {"message": "User not found"}
+
     user["_id"] = str(user["_id"])
 
     return user
 
+# Update User
 @app.put("/users/{user_id}")
 def update_user(user_id: str, updated_user: dict):
 
@@ -58,6 +88,7 @@ def update_user(user_id: str, updated_user: dict):
         "message": "User updated"
     }
 
+# Delete User
 @app.delete("/users/{user_id}")
 def delete_user(user_id: str):
 
@@ -69,19 +100,7 @@ def delete_user(user_id: str):
         "message": "User deleted"
     }
 
-from google import genai
-from fastapi import FastAPI
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-app = FastAPI()
-
-client = genai.Client(
-    api_key=os.getenv("GOOGLE_API_KEY")
-)
-
+# Gemini Chat Endpoint
 @app.post("/chat")
 def chat(question: str):
 
@@ -93,13 +112,3 @@ def chat(question: str):
     return {
         "answer": response.text
     }
-
-from fastapi.middleware.cors import CORSMiddleware
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
