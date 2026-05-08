@@ -4,3 +4,4 @@ python-dotenv
 pymongo
 python-multipart
 google-generativeai
+gunicorn
