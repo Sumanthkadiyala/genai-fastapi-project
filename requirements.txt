@@ -3,5 +3,5 @@ uvicorn
 python-dotenv
 pymongo
 python-multipart
-google-generativeai
+google-genai
 gunicorn
