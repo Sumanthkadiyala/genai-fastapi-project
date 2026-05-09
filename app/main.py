@@ -1,22 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import user_collection
 from bson import ObjectId
-from google import genai
 from dotenv import load_dotenv
+from google import genai
 import os
 
+from app.database import user_collection
+from app.routes.health import router as health_router
+from app.routes.rag import router as rag_router
+
+# Load environment variables
 load_dotenv()
 
 # Create FastAPI app ONLY ONCE
-app = FastAPI()
+app = FastAPI(title="RAG API")
 
 # Gemini Client
 client = genai.Client(
     api_key=os.getenv("GOOGLE_API_KEY")
 )
 
-# CORS
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,20 +29,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include Routers
+app.include_router(health_router)
+app.include_router(rag_router)
+
+
 # Home Route
 @app.get("/")
 def home():
-    return {"message": "Hello World"}
+    return {
+        "message": "RAG API is running"
+    }
 
-# Health Route
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
 
 # Create User
 @app.post("/users")
 def create_user(user: dict):
-
     result = user_collection.insert_one(user)
 
     return {
@@ -46,24 +52,22 @@ def create_user(user: dict):
         "message": "User created"
     }
 
+
 # Get All Users
 @app.get("/users")
 def get_users():
-
     users = []
 
     for user in user_collection.find():
-
         user["_id"] = str(user["_id"])
-
         users.append(user)
 
     return users
 
+
 # Get Single User
 @app.get("/users/{user_id}")
 def get_user(user_id: str):
-
     user = user_collection.find_one(
         {"_id": ObjectId(user_id)}
     )
@@ -75,10 +79,10 @@ def get_user(user_id: str):
 
     return user
 
+
 # Update User
 @app.put("/users/{user_id}")
 def update_user(user_id: str, updated_user: dict):
-
     user_collection.update_one(
         {"_id": ObjectId(user_id)},
         {"$set": updated_user}
@@ -88,10 +92,10 @@ def update_user(user_id: str, updated_user: dict):
         "message": "User updated"
     }
 
+
 # Delete User
 @app.delete("/users/{user_id}")
 def delete_user(user_id: str):
-
     user_collection.delete_one(
         {"_id": ObjectId(user_id)}
     )
@@ -100,10 +104,10 @@ def delete_user(user_id: str):
         "message": "User deleted"
     }
 
+
 # Gemini Chat Endpoint
 @app.post("/chat")
 def chat(question: str):
-
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=question

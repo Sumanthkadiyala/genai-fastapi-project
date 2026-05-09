@@ -1,7 +1,23 @@
-fastapi
-uvicorn
-python-dotenv
-pymongo
-python-multipart
-google-genai
-gunicorn
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+python-dotenv==1.1.1
+pydantic==2.11.7
+
+# LangChain
+langchain==0.3.27
+langchain-community==0.3.27
+langchain-google-genai==2.1.9
+
+# Embeddings
+sentence-transformers==5.1.0
+
+# Vector Database
+faiss-cpu==1.11.0.post1
+
+# PDF Processing
+pypdf==6.0.0
+
+# Optional but commonly installed with sentence-transformers
+transformers==4.55.4
+torch==2.8.0
+huggingface-hub==0.34.4
