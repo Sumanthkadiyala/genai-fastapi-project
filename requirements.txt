@@ -21,4 +21,4 @@ pypdf==6.0.0
 transformers==4.55.4
 torch==2.8.0
 huggingface-hub==0.34.4
-pymongo==4.13.0
+pymongo==4.17.0
