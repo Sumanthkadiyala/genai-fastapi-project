@@ -8,6 +8,7 @@ import os
 from app.database import user_collection
 from app.routes.health import router as health_router
 from app.routes.rag import router as rag_router
+from app.routes.agent import router as agent_router
 
 # Load environment variables
 load_dotenv()
@@ -33,6 +34,7 @@ app.add_middleware(
 # Include Routers
 app.include_router(health_router)
 app.include_router(rag_router)
+app.include_router(agent_router)
 
 
 # Home Route
